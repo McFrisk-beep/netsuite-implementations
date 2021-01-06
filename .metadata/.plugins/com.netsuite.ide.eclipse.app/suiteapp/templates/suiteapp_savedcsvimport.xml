@@ -1,0 +1,23 @@
+<savedcsvimport scriptid="custimport_">
+    <charencoding>windows-1252</charencoding>
+    <columndelimiter>PIPE</columndelimiter>
+    <datahandling>ADD</datahandling>
+    <importname></importname>
+    <recordtype></recordtype>
+    <decimaldelimiter></decimaldelimiter>
+    <filemappings>
+        <filemapping>
+            <file></file>
+        </filemapping>
+    </filemappings>
+    <recordmappings>
+        <recordmapping>
+            <record></record>
+            <fieldmappings>
+                <fieldmapping>
+                    <field></field>
+                </fieldmapping>
+            </fieldmappings>
+        </recordmapping>
+    </recordmappings>
+</savedcsvimport>

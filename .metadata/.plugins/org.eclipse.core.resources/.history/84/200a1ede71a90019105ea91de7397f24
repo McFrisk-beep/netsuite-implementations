@@ -1,0 +1,57 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType Suitelet
+ * @NModuleScope SameAccount
+ */
+define(['N/record', 'N/search', 'N/runtime', 'N/email', 'N/ui/serverWidget'],
+/**
+ * @param {record} record
+ * @param {search} search
+ * @param {serverWidget} serverWidget
+ */
+function(record, search, runtime, email, serverWidget) {
+    /**
+     * Definition of the Suitelet script trigger point.
+     *
+     * @param {Object} context
+     * @param {ServerRequest} context.request - Encapsulation of the incoming request
+     * @param {ServerResponse} context.response - Encapsulation of the Suitelet response
+     * @Since 2015.2
+     */
+    function onRequest(context) {
+    	if(context.request.method == 'GET'){
+        	var timeRecord = record.load({
+        		type: 'customrecord_nsacs_time_entry',
+        		id: context.request.parameters.rcID,
+        		isDynamic: true
+        	});
+
+        	if(context.request.parameters.status == 'A'){
+        		//Approve
+        	}
+        	else if(context.request.parameters.status == 'R'){
+        		//Reject
+        	}
+        	else if(context.request.parameters.status == 'C'){
+        		//Cancel
+        	}
+        	else if(context.request.parameters.status == 'CL'){
+        		//Complete Later
+        	}
+    	}
+    	else{
+    		//var poID = context.request.parameters.custpage_internalid;
+	    	var redirect = '<html>'
+	             + '<script type="text/javascript">'
+	             + 'window.location = "/app/accounting/transactions/purchord.nl?id=' + poID + '";'
+	             + '</script>'
+	             + '</html>';
+	    	context.response.write(redirect);
+    	}
+    }
+
+    return {
+        onRequest: onRequest
+    };
+    
+});

@@ -1,0 +1,6 @@
+<emailtemplate scriptid="custemailtmpl_">
+    <name></name>
+    <recordtype></recordtype>
+    <subject></subject>
+    <usesmedia>F</usesmedia>
+</emailtemplate>

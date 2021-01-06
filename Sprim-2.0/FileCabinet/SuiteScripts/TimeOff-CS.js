@@ -1,0 +1,121 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType ClientScript
+ * @NModuleScope SameAccount
+ */
+define(['N/record', 'N/search', 'N/ui/dialog', 'N/format'],
+/**
+ * @param {record} record
+ * @param {search} search
+ */
+function(record, search, dialog, format) {
+    
+    /**
+     * Function to be executed after page is initialized.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.currentRecord - Current form record
+     * @param {string} scriptContext.mode - The mode in which the record is being accessed (create, copy, or edit)
+     *
+     * @since 2015.2
+     */
+    function pageInit(scriptContext) {
+    	
+    }
+
+    /**
+     * Function to be executed when field is changed.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.currentRecord - Current form record
+     * @param {string} scriptContext.sublistId - Sublist name
+     * @param {string} scriptContext.fieldId - Field name
+     * @param {number} scriptContext.lineNum - Line number. Will be undefined if not a sublist or matrix field
+     * @param {number} scriptContext.columnNum - Line number. Will be undefined if not a matrix field
+     *
+     * @since 2015.2
+     */
+    function fieldChanged(scriptContext) {
+    	var timeRecord = scriptContext.currentRecord;
+    	var fieldName = scriptContext.fieldId;
+    	var isValidated = true;
+    	if(fieldName == 'custrecord_nsacs_datefrom' && timeRecord.getValue({ fieldId: 'custrecord_nsacs_datefrom'}) != ''){
+    		//If Date To is not blank, calculate. Otherwise, check if the date is in the past.
+    		if(timeRecord.getValue({ fieldId: 'custrecord_nsacs_dateto'}) != ''){
+    			var fromDate = new Date(timeRecord.getValue({ fieldId: 'custrecord_nsacs_datefrom'}));
+    			var toDate = new Date(timeRecord.getValue({ fieldId: 'custrecord_nsacs_dateto'}));
+    			
+    			if(fromDate > toDate){
+            		dialog.alert({
+            			title: 'Notice',
+            			message: 'Date From cannot be before greater than Date To.'
+            		});
+            		timeRecord.setValue({ fieldId: 'custrecord_nsacs_datefrom', value: '', ignoreFieldChange: true});
+    			}
+    		}
+    		
+			var fromDate = new Date(timeRecord.getValue({ fieldId: 'custrecord_nsacs_datefrom'}));
+			var today = new Date();
+			log.debug('From | Today', fromDate + ' | ' + today);
+			
+			if(today >= fromDate){
+        		dialog.alert({
+        			title: 'Notice',
+        			message: 'Date From cannot be on or before today.'
+        		});
+        		timeRecord.setValue({ fieldId: 'custrecord_nsacs_datefrom', value: '', ignoreFieldChange: true});
+			}
+    	}
+    	else if(fieldName == 'custrecord_nsacs_dateto' && timeRecord.getValue({ fieldId: 'custrecord_nsacs_dateto'}) != ''){
+    		//If Date From is not blank, calculate. Otherwise, check if the date is in the past.
+    		if(timeRecord.getValue({ fieldId: 'custrecord_nsacs_datefrom'}) != ''){
+    			var fromDate = new Date(timeRecord.getValue({ fieldId: 'custrecord_nsacs_datefrom'}));
+    			var toDate = new Date(timeRecord.getValue({ fieldId: 'custrecord_nsacs_dateto'}));
+    			
+    			if(fromDate > toDate){
+            		dialog.alert({
+            			title: 'Notice',
+            			message: 'Date From cannot be before greater than Date To.'
+            		});
+            		timeRecord.setValue({ fieldId: 'custrecord_nsacs_dateto', value: '', ignoreFieldChange: true});
+    			}
+    		}
+    		
+			var toDate = new Date(timeRecord.getValue({ fieldId: 'custrecord_nsacs_dateto'}));
+			var today = new Date();
+			
+			if(today >= toDate){
+				dialog.alert({
+					title: 'Notice',
+					message: 'Date To cannot be on or before today.'
+				});
+				timeRecord.setValue({ fieldId: 'custrecord_nsacs_dateto', value: '', ignoreFieldChange: true});
+			}
+    	}
+    }
+
+    /**
+     * Validation function to be executed when record is saved.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.currentRecord - Current form record
+     * @returns {boolean} Return true if record is valid
+     *
+     * @since 2015.2
+     */
+    function saveRecord(scriptContext) {
+    	var timeRecord = scriptContext.currentRecord;
+    	var status = timeRecord.getValue({ fieldId: 'custrecord_nsacs_timeoff_status'});
+    	//IF status = "rejected" or status = "approved", revert back to "pending"
+    	if(status == '3' || status == '2' || status == '5'){
+    		timeRecord.setValue({ fieldId: 'custrecord_nsacs_timeoff_status', value: '1'});
+    	}
+    	return true;
+    }
+
+    return {
+        pageInit: pageInit,
+        fieldChanged: fieldChanged,
+        saveRecord: saveRecord
+    };
+});

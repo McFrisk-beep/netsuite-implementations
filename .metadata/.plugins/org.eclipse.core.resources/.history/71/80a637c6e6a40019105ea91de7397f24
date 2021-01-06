@@ -1,0 +1,252 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType Restlet
+ * @NModuleScope SameAccount
+ */
+define(['N/record','N/log', 'N/search'],
+		/**
+		 * @param {record}
+		 * record
+		 */
+		function(record, log, search) {
+			/**
+			 * Function called upon sending a GET request to the RESTlet.
+			 * 
+			 * @param {Object}
+			 *            requestParams - Parameters from HTTP request URL;
+			 *            parameters will be passed into function as an Object
+			 *            (for all supported content types)
+			 * @returns {string | Object} HTTP response body; return string when
+			 *          request Content-Type is 'text/plain'; return Object when
+			 *          request Content-Type is 'application/json'
+			 * @since 2015.1
+			 */
+			function doGet(requestParams) {
+
+			}
+
+			/**
+			 * Function called upon sending a PUT request to the RESTlet.
+			 * 
+			 * @param {string |
+			 *            Object} requestBody - The HTTP request body; request
+			 *            body will be passed into function as a string when
+			 *            request Content-Type is 'text/plain' or parsed into an
+			 *            Object when request Content-Type is 'application/json'
+			 *            (in which case the body must be a valid JSON)
+			 * @returns {string | Object} HTTP response body; return string when
+			 *          request Content-Type is 'text/plain'; return Object when
+			 *          request Content-Type is 'application/json'
+			 * @since 2015.2
+			 */
+			function doPut(requestBody) {
+
+			}
+			/**
+			 * Function called upon sending a POST request to the RESTlet.
+			 * 
+			 * @param {string |
+			 *            Object} requestBody - The HTTP request body; request
+			 *            body will be passed into function as a string when
+			 *            request Content-Type is 'text/plain' or parsed into an
+			 *            Object when request Content-Type is 'application/json'
+			 *            (in which case the body must be a valid JSON)
+			 * @returns {string | Object} HTTP response body; return string when
+			 *          request Content-Type is 'text/plain'; return Object when
+			 *          request Content-Type is 'application/json'
+			 * @since 2015.2
+			 */
+			function doPostit(requestBody) {
+				//Placeholder just in case the fields coming in needs the field IDs converted
+				//var fieldReferences = new Array();
+				
+				//The payload coming in from an external source. Received in JSON format.
+				var payload = requestBody;
+				log.debug('payload', payload);
+				
+				//Search to see if the customer already exists.
+				//If there are duplicate results returned, send an error that there are multiple users with the same account.
+	            var customerSearch = search.create({
+	                type: search.Type.CUSTOMER,
+	                columns: ['internalid'],
+	                filters: [{name: 'email', operator: 'is', values: payload['email']}]
+	            });
+	            var isMultiResults = false;
+	            var customerId = '';
+	            customerSearch.run().each(function(result){
+	                try{
+	                	if(isMultiResults == false){
+	                		customerId = result.getValue({ name: 'internalid'});
+	                		isMultiResults = true;
+	                	}
+	                	else if(isMultiResults == true){
+	                		//End the RESTlet process.
+	                		return 'There are multiple customer records with this e-mail address';
+	                	}
+	                }
+	                catch(e){
+	                	log.error('Error occured on saved search', e);
+	                }
+	                return true;
+	            });
+	            log.debug('isMultiResults', isMultiResults);
+				
+	            
+	            if(customerId == ''){
+					//Create a new Customer record instance
+					var rec = record.create({
+						type : record.Type.CUSTOMER,
+						isDynamic : true
+					});
+					try{
+						//Hard-coded values not found on the Payload request.
+						//rec.setValue({ fieldId: 'subsidiary', value: '1'});
+						rec.setValue({ fieldId: 'isperson', value: 'T'});
+						rec.setValue({ fieldId: 'entitystatus', value: '13'});
+						rec.setValue({ fieldId: 'pricelevel', value: '1'});
+						rec.setValue({ fieldId: 'prefccprocessor', value: '1'});
+						
+						//Loop through the JSON Data provided. Handles NEST-0 JSON.
+						for(var fldProperty in payload) {
+							log.debug('fldProperty | value', fldProperty + ' | ' + payload[fldProperty]);
+							if(fldProperty == 'custom_attributes'){
+								try{
+									//NEST-1 JSON
+									var ctr = true;
+									var fldId = '';
+									var fldVal = '';
+									for(var customattrib in payload.custom_attributes[0]){
+										log.debug('[CUSTOM ATTRIBUTES] customattrib | value', customattrib + ' | ' + payload.custom_attributes[0][customattrib]);
+										if(ctr){
+											fldId = payload.custom_attributes[0][customattrib];
+											ctr = false;
+										}
+										else{
+											fldVal = payload.custom_attributes[0][customattrib];
+											ctr = true;
+											rec.setValue({
+												fieldId : fldId,
+												value : fldVal
+											});
+											log.debug('Value set', fldId + ' - ' + fldVal);
+										}
+									}
+								}
+								catch(e){
+									//Log it on the script record, but proceed with script execution.
+									log.debug('Invalid custom attributes field', e);
+								}
+							}
+							else{
+								try{
+									//NEST-0 JSon
+									if(fldProperty == 'email'){
+										rec.setValue({ fieldId: 'custentity_celigo_etail_cust_id', value: payload[fldProperty]});
+									}
+									rec.setValue({
+										fieldId : fldProperty,
+										value : payload[fldProperty]
+									});
+								}
+								catch(e){
+									//Log it on the script record, but continue script execution.
+									log.debug('Invalid field.', e);
+								}
+							}
+						}
+						//Save the customer record
+						var custId = rec.save();
+						return 'Customer Record saved successfully at ' + custId;
+					}
+					catch(e){
+						log.error('Error occured.', e);
+						return e;
+					}
+	            }
+	            else if(customerId != ''){
+	            	//Load the customer record for update.
+	            	var rec = record.load({
+	            	    type: record.Type.CUSTOMER, 
+	            	    id: customerId,
+	            	    isDynamic: true
+	            	});
+	            	try{
+						//Loop through the JSON Data provided. Handles NEST-0 JSON.
+						for(var fldProperty in payload) {
+							log.debug('fldProperty | value', fldProperty + ' | ' + payload[fldProperty]);
+							if(fldProperty == 'custom_attributes'){
+								try{
+									//NEST-1 JSON
+									var ctr = true;
+									var fldId = '';
+									var fldVal = '';
+									for(var customattrib in payload.custom_attributes[0]){
+										log.debug('[CUSTOM ATTRIBUTES] customattrib | value', customattrib + ' | ' + payload.custom_attributes[0][customattrib]);
+										if(ctr){
+											fldId = payload.custom_attributes[0][customattrib];
+											ctr = false;
+										}
+										else{
+											fldVal = payload.custom_attributes[0][customattrib];
+											ctr = true;
+											rec.setValue({
+												fieldId : fldId,
+												value : fldVal
+											});
+											log.debug('Value set', fldId + ' - ' + fldVal);
+										}
+									}
+								}
+								catch(e){
+									//Log it on the script record, but proceed with script execution.
+									log.debug('Invalid custom attributes field', e);
+								}
+							}
+							else{
+								try{
+									//NEST-0 JSon
+									if(fldProperty == 'email'){
+										rec.setValue({ fieldId: 'custentity_celigo_etail_cust_id', value: payload[fldProperty]});
+									}
+									rec.setValue({
+										fieldId : fldProperty,
+										value : payload[fldProperty]
+									});
+								}
+								catch(e){
+									//Log it on the script record, but continue script execution.
+									log.debug('Invalid field.', e);
+								}
+							}
+						}
+						//Save the customer record
+						var custId = rec.save();
+						return 'Customer Record modified successfully at ' + custId;
+	            	}
+	            	catch(e){
+						log.error('Error occured.', e);
+						return e;
+	            	}
+	            }
+			}
+
+			/**
+			 * Function called upon sending a DELETE request to the RESTlet.
+			 * 
+			 * @param {Object}
+			 *            requestParams - Parameters from HTTP request URL;
+			 *            parameters will be passed into function as an Object
+			 *            (for all supported content types)
+			 * @returns {string | Object} HTTP response body; return string when
+			 *          request Content-Type is 'text/plain'; return Object when
+			 *          request Content-Type is 'application/json'
+			 * @since 2015.2
+			 */
+			function doDelete(requestParams) {
+
+			}
+
+			return {
+				post : doPostit
+			};
+});

@@ -1,0 +1,27 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType UserEventScript
+ * @NModuleScope SameAccount
+ */
+define(['N/search', 'N/runtime', 'N/record'],
+
+function(search, runtime, record) {
+   
+    /**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {string} scriptContext.type - Trigger type
+     * @param {Form} scriptContext.form - Current form
+     * @Since 2015.2
+     */
+    function beforeLoad(scriptContext) {
+    	
+    }
+
+    return {
+        beforeLoad: beforeLoad
+    };
+    
+});

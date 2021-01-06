@@ -1,0 +1,22 @@
+<!--
+WITH dateRangeTypes AS (
+  SELECT sKey, upper(replace(regexp_replace(regexp_replace(sDefaultName, ' |\(|\)', '_'), '_$|''', ''), '-', 'TO')) AS sNormalizedKey
+  FROM ReportDateRange
+  WHERE skey NOT IN ('CUSTOM','RELATIVE')
+  AND sDefaultName IS NOT NULL
+),
+periodRangeTypes AS (
+  SELECT sKey, upper(replace(sName, ' ', '_')) AS sNormalizedKey
+  FROM ReportPeriodRange
+)
+SELECT '  <value internal="'||dr.sKey||'">'||dr.sNormalizedKey||'</value>'
+FROM dateRangeTypes dr, periodRangeTypes pr
+WHERE dr.sKey = pr.sKey
+ORDER BY dr.sNormalizedKey;
+-->
+<list id="kpi_ranges_daterange_or_period">
+	<value internal="FYBL">FISCAL_YEAR_BEFORE_LAST</value>
+	<value internal="LFY">LAST_FISCAL_YEAR</value>
+	<value internal="TFY">THIS_FISCAL_YEAR</value>
+</list>
+

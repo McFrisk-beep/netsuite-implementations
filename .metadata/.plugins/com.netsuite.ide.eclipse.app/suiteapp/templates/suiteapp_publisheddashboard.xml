@@ -1,0 +1,16 @@
+<publisheddashboard scriptid="custpubdashboard_">
+    <center></center>
+    <name></name>
+    <dashboards>
+        <dashboard>
+            <centertab></centertab>
+            <layout></layout>
+            <mode></mode>
+        </dashboard>
+    </dashboards>
+    <roles>
+        <role>
+            <role></role>
+        </role>
+    </roles>
+</publisheddashboard>

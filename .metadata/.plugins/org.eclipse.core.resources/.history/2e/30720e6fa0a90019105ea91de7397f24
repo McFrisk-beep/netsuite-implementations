@@ -1,0 +1,16 @@
+function TestEmailCapture(request, response){
+	var URL_PARAM = request.getParameter('custscript6');
+	nlapiLogExecution('DEBUG', 'URL Param:', URL_PARAM);
+}
+
+function process(email){
+	var saveOnce = false;
+	var fromAddress = email.getFrom();
+	var subject = email.getSubject();
+	
+	
+	
+	url = "https://tstdrv1389358.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=898&deploy=1&compid=TSTDRV1389358&h=7d5973838d498fc42762";
+	url += "&custscript6=" + fromAddress;
+	var response = nlapiRequestURL(url, null, null, null);
+}

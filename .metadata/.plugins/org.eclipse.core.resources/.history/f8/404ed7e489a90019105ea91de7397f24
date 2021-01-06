@@ -1,0 +1,108 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType UserEventScript
+ * @NModuleScope SameAccount
+ */
+define(['N/search', 'N/runtime', 'N/record'],
+
+function(search, runtime, record) {
+   
+    /**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {string} scriptContext.type - Trigger type
+     * @param {Form} scriptContext.form - Current form
+     * @Since 2015.2
+     */
+    function beforeLoad(scriptContext) {
+    	var timeRecord = scriptContext.newRecord;
+    	var timeForm = scriptContext.form;
+    	timeForm.clientScriptFileId = '130800';		//Client Script file internal ID
+    	var empIDstore = runtime.getCurrentUser().id;
+    	var status = timeRecord.getValue({ fieldId: 'custrecord_nsacs_timeoff_status'});
+    	
+    	//log.debug('empIDstore | record employee', empIDstore + ' | ' + timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'}));
+    	
+    	if(scriptContext.type == scriptContext.UserEventType.VIEW && empIDstore != timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'})
+    			&& status == '1'){
+    		//Render Approve/Reject options
+    		var checkEmployee = record.load({
+    			type: record.Type.EMPLOYEE,
+    			id: timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'})
+    		});
+    		var supervisor = checkEmployee.getValue({ fieldId: 'supervisor'});
+    		
+    		//If supervisor is the current employee viewing the form, render the Approve/Reject buttons
+    		if(supervisor == empIDstore){
+        		timeForm.addButton({
+        			id: 'custpage_button_approve',
+        			label: 'Approve',
+        			functionName: 'approve('+timeRecord.getValue({ fieldId: 'id'})+')'
+        		});
+        		timeForm.addButton({
+        			id: 'custpage_button_reject',
+        			label: 'Reject',
+        			functionName: 'reject('+timeRecord.getValue({ fieldId: 'id'})+')'
+        		});
+    		}
+    		
+    	}
+    	else if(scriptContext.type == scriptContext.UserEventType.VIEW && empIDstore == timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'})
+    			&& (status == '1' || status == '4')){
+    		//Render "Cancel" option
+    		timeForm.addButton({
+    			id: 'custpage_button_cancel',
+    			label: 'Cancel Time-Off Request',
+    			functionName: 'cancel('+timeRecord.getValue({ fieldId: 'id'})+')'
+    		});
+    	}
+    	else if((scriptContext.type == scriptContext.UserEventType.EDIT) && empIDstore == timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'}) && (status == '1' || status == '4')){
+    		//Render "Complete Later" option
+    		timeForm.addButton({
+    			id: 'custpage_button_complete_later',
+    			label: 'Complete Later',
+    			functionName: 'complete_later('+timeRecord.getValue({ fieldId: 'id'})+')'
+    		});
+    		
+    		//Render "Cancel" button
+    		timeForm.addButton({
+    			id: 'custpage_button_cancel',
+    			label: 'Cancel Time-Off Request',
+    			functionName: 'cancel('+timeRecord.getValue({ fieldId: 'id'})+')'
+    		});
+    	}
+    	else if((scriptContext.type == scriptContext.UserEventType.EDIT) && empIDstore == timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'}) && status == '3'){
+    		//Render "Complete Later" option
+    		timeForm.addButton({
+    			id: 'custpage_button_complete_later',
+    			label: 'Complete Later',
+    			functionName: 'complete_later('+timeRecord.getValue({ fieldId: 'id'})+')'
+    		});
+    	}
+    }
+    
+    /**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {Record} scriptContext.oldRecord - Old record
+     * @param {string} scriptContext.type - Trigger type
+     * @Since 2015.2
+     */
+    function beforeSubmit(scriptContext) {
+    	var timeRecord = scriptContext.newRecord;
+    	var status = timeRecord.getValue({ fieldId: 'custrecord_nsacs_timeoff_status'});
+    	var currentUser = runtime.getCurrentUser().id;
+    	log.debug('current user', currentUser);
+    	//if(status == '2' || status == '')
+    }
+
+    return {
+        beforeLoad: beforeLoad,
+        beforeSubmit: beforeSubmit
+    };
+    
+});

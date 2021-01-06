@@ -1,0 +1,14 @@
+<!--
+SELECT '  <value'||decode(kFeature, null, '', kFeature, ' feature="'||kFeature||'"')||'>'||sKey||'</value>'
+FROM snapshottype
+WHERE bCustomerCenterOnly = 'F'
+AND bCustomerDashboardOnly = 'F'
+AND bProjectDashboardOnly = 'F'
+AND sKey LIKE 'FORMULA%'
+ORDER BY sKey;
+-->
+<list id="kpi_snapshots_formula">
+	<value>FORMULACURRENCY</value>
+	<value>FORMULANUMERIC</value>
+	<value>FORMULAPERCENT</value>
+</list>

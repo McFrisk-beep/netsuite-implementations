@@ -1,0 +1,101 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType Suitelet
+ * @NModuleScope SameAccount
+ */
+define(['N/record', 'N/search', 'N/runtime', 'N/email', 'N/ui/serverWidget'],
+/**
+ * @param {record} record
+ * @param {search} search
+ * @param {serverWidget} serverWidget
+ */
+function(record, search, runtime, email, serverWidget) {
+    /**
+     * Definition of the Suitelet script trigger point.
+     *
+     * @param {Object} context
+     * @param {ServerRequest} context.request - Encapsulation of the incoming request
+     * @param {ServerResponse} context.response - Encapsulation of the Suitelet response
+     * @Since 2015.2
+     */
+    function onRequest(context) {
+    	if(context.request.method == 'GET'){
+        	/*var timeRecord = record.load({
+        		type: 'customrecord_nsacs_time_entry',
+        		id: context.request.parameters.rcID,
+        		isDynamic: true
+        	});*/
+
+        	if(context.request.parameters.status == 'A'){
+        		//Approve
+        		var timeRecord = record.submitFields({
+        		    type: 'customrecord_nsacs_time_entry',
+        		    id: context.request.parameters.rcID,
+        		    values: {
+        		    	custrecord_nsacs_timeoff_status: '2'
+        		    },
+        		    options: {
+        		        enableSourcing: false,
+        		        ignoreMandatoryFields : true
+        		    }
+        		});
+        	}
+        	else if(context.request.parameters.status == 'R'){
+        		//Reject
+        		var timeRecord = record.submitFields({
+        		    type: 'customrecord_nsacs_time_entry',
+        		    id: context.request.parameters.rcID,
+        		    values: {
+        		    	custrecord_nsacs_timeoff_status: '3'
+        		    },
+        		    options: {
+        		        enableSourcing: false,
+        		        ignoreMandatoryFields : true
+        		    }
+        		});
+        	}
+        	else if(context.request.parameters.status == 'CL'){
+        		//Complete Later
+        		var timeRecord = record.submitFields({
+        		    type: 'customrecord_nsacs_time_entry',
+        		    id: context.request.parameters.rcID,
+        		    values: {
+        		    	custrecord_nsacs_timeoff_status: '4'
+        		    },
+        		    options: {
+        		        enableSourcing: false,
+        		        ignoreMandatoryFields : true
+        		    }
+        		});
+        	}
+        	else if(context.request.parameters.status == 'C'){
+        		//Cancel
+        		var timeRecord = record.submitFields({
+        		    type: 'customrecord_nsacs_time_entry',
+        		    id: context.request.parameters.rcID,
+        		    values: {
+        		    	custrecord_nsacs_timeoff_status: '5'
+        		    },
+        		    options: {
+        		        enableSourcing: false,
+        		        ignoreMandatoryFields : true
+        		    }
+        		});
+        	}
+    	}
+    	else{
+    		var timeOffID = context.request.parameters.rcID;
+	    	var redirect = '<html>'
+	             + '<script type="text/javascript">'
+	             + 'window.location = "/app/common/custom/custrecordentry.nl?rectype=749&id=' + timeOffID + '";'
+	             + '</script>'
+	             + '</html>';
+	    	context.response.write(redirect);
+    	}
+    }
+
+    return {
+        onRequest: onRequest
+    };
+    
+});

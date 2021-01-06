@@ -1,0 +1,19 @@
+<!--
+SELECT '  <value internal="'||nKey||decode(kFeature, null, '', kFeature, '" feature="'||kFeature)||'">'||sUserKey||'</value>' FROM (
+  SELECT savedsearch.kFeature, nKey, regexp_replace(upper(sDefaultName), '[\{\}\(\)/'' ]', '_') AS sUserKey
+  FROM savedsearch, searchtype
+  WHERE savedsearch.sSearchType = searchtype.sKey
+  AND sCompID = 'NL'
+  AND EXISTS (
+    SELECT 1 FROM savedsearchfield, searchfield, customField
+    WHERE savedsearchfield.nSeqnum = 1
+    AND kSearchFieldType = kSearchType(+)
+    AND kSearchField = sName(+)
+    AND customField.sKey(+) = kCustomField
+    AND nvl(searchfield.sType, customfield.sFieldType) IN ('PERIOD')
+    AND kSearch = savedsearch.nKey)
+) ORDER BY sUserKey;
+-->
+<list id='generic_savedsearches_period'>
+	<value internal="-4170" feature="GLAUDITNUMBERING">GL_AUDIT_NUMBERING_REVIEW</value>
+</list>

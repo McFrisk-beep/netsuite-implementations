@@ -1,0 +1,59 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType UserEventScript
+ * @NModuleScope SameAccount
+ */
+define(['N/search', 'N/runtime', 'N/record'],
+
+function(search, runtime, record) {
+   
+    /**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {string} scriptContext.type - Trigger type
+     * @param {Form} scriptContext.form - Current form
+     * @Since 2015.2
+     */
+    function beforeLoad(scriptContext) {
+    	var timeRecord = scriptContext.newRecord;
+    	var timeForm = scriptContext.form;
+    	var empIDstore = runtime.getCurrentUser().id
+    	
+    	if(scriptContext.type == scriptContext.UserEventType.VIEW && empIDstore != timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'})){
+    		//Render Approve/Reject options
+    		timeForm.addButton({
+    			id: 'custpage_button_approve',
+    			label: 'Approve',
+    			functionName: 'approve('+timeForm.getValue({ fieldId: 'id'})+')'
+    		});
+    		timeForm.addButton({
+    			id: 'custpage_button_reject',
+    			label: 'Reject',
+    			functionName: 'reject('+timeForm.getValue({ fieldId: 'id'})+')'
+    		});
+    	}
+    	else if(scriptContext.type == scriptContext.UserEventType.VIEW && empIDstore == timeRecord.getValue({ fieldId: 'custrecord_nsacs_employee'})){
+    		//Render "Cancel" option
+    		timeForm.addButton({
+    			id: 'custpage_button_cancel',
+    			label: 'Cancel Time-Off Request',
+    			functionName: 'cancel('+timeForm.getValue({ fieldId: 'id'})+')'
+    		});
+    	}
+    	else if(scriptContext.type == scriptContext.UserEventType.EDIT || scriptContext.type == scriptContext.UserEventType.CREATE){
+    		//Render "Complete Later" option
+    		timeForm.addButton({
+    			id: 'custpage_button_complete_later',
+    			label: 'Complete Later',
+    			functionName: 'complete_later('+timeForm.getValue({ fieldId: 'id'})+')'
+    		});
+    	}
+    }
+
+    return {
+        beforeLoad: beforeLoad
+    };
+    
+});

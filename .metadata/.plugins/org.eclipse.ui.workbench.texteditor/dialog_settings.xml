@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="isRegEx" value="false"/>
+		<item key="selection" value="email"/>
+		<item key="casesensitive" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="wrap" value="true"/>
+		<item key="wholeword" value="false"/>
+		<list key="findhistory">
+			<item value="email"/>
+			<item value="beforeSubmit"/>
+			<item value="custpage_internalid"/>
+			<item value="alert"/>
+			<item value="date"/>
+			<item value="fieldLookUp"/>
+			<item value="memo"/>
+			<item value="lookup"/>
+			<item value="search.create"/>
+			<item value="mkpass"/>
+			<item value="setCurrentLineItemValue"/>
+			<item value="poDocumentID"/>
+			<item value="custbody_nsacs_eligible_recurring"/>
+			<item value="recurringEligible"/>
+			<item value="setvalue"/>
+		</list>
+		<list key="replacehistory">
+			<item value="HERE"/>
+			<item value="nextChargeDate"/>
+			<item value="invList"/>
+			<item value="invoice"/>
+			<item value="custpage_invoice"/>
+			<item value="soLoad"/>
+			<item value="scriptContext.fieldId"/>
+			<item value="scriptContext.sublistId"/>
+			<item value="currLine"/>
+			<item value="otherrecipientslist"/>
+			<item value="custentity_email_cclist"/>
+			<item value="custentity_email_template"/>
+			<item value="notesRecord"/>
+			<item value="accountRecord"/>
+			<item value="requestBody"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_WIDTH" value="336"/>
+		<item key="DIALOG_FONT_NAME" value="1|Segoe UI|9.0|0|WINDOWS|1|-15|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI"/>
+		<item key="DIALOG_HEIGHT" value="454"/>
+		<item key="DIALOG_X_ORIGIN" value="65"/>
+		<item key="DIALOG_Y_ORIGIN" value="186"/>
+	</section>
+</section>
