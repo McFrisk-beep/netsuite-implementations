@@ -36,20 +36,20 @@ function(record, runtime, search) {
     	var rcrd = scriptContext.newRecord;
     	var execContext = runtime.executionContext;
     	
-		//This probably came from SCIS. For now, the POS Status is used as an additional layer to make sure that the transaction came from the SCIS Application.
+		//This identifies that it came from SCIS.
+        //The POS Status is used as an additional layer to make sure that the transaction came from the SCIS Application.
     	if(execContext == runtime.ContextType.WEBAPPLICATION && rcrd.getValue({ fieldId: 'custbody_ns_pos_transaction_status'}) != ''){
     		var count = rcrd.getLineCount({ sublistId: 'item'});
     		for(var x = 0; x < count; x++){
     			try{
     				//Check if the "Description" field is blank.
+                    //If blank, get the field value from the "NS ACS | Web Store Display Name" Custom Transaction Line field
         			if(rcrd.getSublistValue({ sublistId: 'item', fieldId: 'description', line: x}) == ''){
-        				//If blank, get the field value from the "NS ACS | Web Store Display Name" Custom Transaction Line field
         				rcrd.setSublistValue({ sublistId: 'item', fieldId: 'description', line: x, value: rcrd.getSublistValue({ sublistId: 'item', fieldId: 'custcol_nsacs_web_displayname', line: x})});
         				log.debug('Description set for Item ID ' + rcrd.getSublistValue({ sublistId: 'item', fieldId: 'item', line: x}), rcrd.getSublistValue({ sublistId: 'item', fieldId: 'custcol_nsacs_web_displayname', line: x}));
         			}
     			}
     			catch(e){
-    				//Catch the error and see what happened.
     				log.error('Error occured. See details.', e);
     			}
     		}
